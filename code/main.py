@@ -63,7 +63,7 @@ def main():
         # get label of highest prediction
         predicted_label = label_dict[predicted_index]
 
-        # soft and format  confidence list
+        # soft and format confidence list
         result = zip(label_dict.values(), predictions[0].tolist())
         result = list(result)
         result.sort(key=lambda x: x[1], reverse=True)
@@ -113,6 +113,7 @@ def save_mfcc(audio_path,
                                 hop_length=hop_length)
 
     # transpose the mfcc data, and slice it to the right size (130, 13)
+    # TODO: I think it might be best to repeatedly slice it and take an average at the end?
     mfcc = mfcc.T
     mfcc = mfcc[:130]
     return mfcc
