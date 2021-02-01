@@ -7,6 +7,7 @@ from tensorflow.python.keras import regularizers
 DATA_PATH = '../myModel/wavfiles/data.npz'
 
 
+# load data file
 def load_data(data_path):
     np_file = np.load(data_path)
     return np_file['mfccs'], np_file['genre']
