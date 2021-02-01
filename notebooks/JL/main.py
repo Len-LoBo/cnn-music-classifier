@@ -7,7 +7,6 @@ from tensorflow.python.keras import regularizers
 DATA_PATH = '../myModel/wavfiles/data.npz'
 
 
-# load data from npz files
 def load_data(data_path):
     np_file = np.load(data_path)
     return np_file['mfccs'], np_file['genre']
@@ -37,7 +36,7 @@ def build_model(input_shape):
     model.add(keras.layers.BatchNormalization())
 
     # 2nd conv layer
-    model.add(keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.01)))
+    model.add(keras.layers.Conv2D(64, (3, 3), activation='relu', kernel_regularizer=regularizers.l2(0.04)))
     model.add(keras.layers.MaxPooling2D((3, 3), strides=(2, 2), padding='same'))
     model.add(keras.layers.Dropout(0.3))
     model.add(keras.layers.BatchNormalization())
@@ -49,15 +48,15 @@ def build_model(input_shape):
 
     # flatten output and feed it into dense layer
     model.add(keras.layers.Flatten())
-    model.add(keras.layers.Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.001)))
+    model.add(keras.layers.Dense(64, activation='relu', kernel_regularizer=regularizers.l2(0.04)))
     model.add(keras.layers.Dropout(0.5))
-    model.add(keras.layers.Dense(32, activation='relu', kernel_regularizer=regularizers.l2(0.001)))
+    model.add(keras.layers.Dense(32, activation='relu', kernel_regularizer=regularizers.l2(0.04)))
 
     # output layer
     model.add(keras.layers.Dense(10, activation='softmax'))
 
     # compile model
-    optimiser = keras.optimizers.Adam(learning_rate=0.001)
+    optimiser = keras.optimizers.Adam(learning_rate=0.0001)
     model.compile(optimizer=optimiser,
                   loss='sparse_categorical_crossentropy',
                   metrics=['accuracy'])
