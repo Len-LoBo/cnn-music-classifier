@@ -9,7 +9,7 @@ body {
     background-color:rgba(60, 60, 60, 1);
 }
 
-.dropzone {
+.dz_container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -22,7 +22,7 @@ body {
     position: relative;
 }
 
-.dz_overlay {
+.dropzone {
     width: 100%;
     height: 100%;
     opacity: 0;

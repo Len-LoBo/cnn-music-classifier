@@ -1,3 +1,5 @@
+
+// preventing the browser window from opening dropped files
 window.addEventListener("dragover",function(e){
     e.preventDefault();
   },false);
@@ -5,55 +7,69 @@ window.addEventListener("dragover",function(e){
 window.addEventListener("drop",function(e){
     e.preventDefault();
   },false);
+//
 
 
-let dropzone;
-let dropzone_bg;
+// drag and drop
 
-dropzone_bg = document.querySelector('.dropzone');
+// dz_container is for styling
+let dz_container = document.querySelector('.dz_container');
 
-dropzone = document.querySelector('.dz_overlay');
+// dropzone has for event listener
+let dropzone = document.querySelector('.dropzone');
+
+// adding dropzone event listeners
 dropzone.addEventListener("dragenter", dragenter, false);
 dropzone.addEventListener("dragover", dragover, false);
 dropzone.addEventListener("dragleave", dragleave, false);
 dropzone.addEventListener("drop", drop, false);
 
+// when file dragged into dropzone
 function dragenter(e) {
     e.stopPropagation()
     e.preventDefault()
+    //highlight
     dropzone_bg.style.backgroundColor = "rgb(133, 133, 133, 1)";
 }
 
+// just stop default behavior and stop propogation here
 function dragover(e) {
     e.stopPropagation()
     e.preventDefault() 
 }
 
+// when file is dragged out of dropzone
 function dragleave(e) {
     e.stopPropagation()
-    e.preventDefault
-
+    e.preventDefault()
+    // remove highlight
     dropzone_bg.style.backgroundColor = "rgb(133, 133, 133, .8)";
 }
 
+// if file dropped in dropzone
+//TODO: File validation
 function drop(e) {
     e.stopPropagation();
     e.preventDefault();
 
+    //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
     const files = dt.files;
     const formData = new FormData() 
     formData.append('audioFile', files[0])
 
+    // uses fetch to POST file to URL
     fetch('/upload', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data)
-        console.log(data['predictions'][0][0])
+        
+        // uncomment to see returned data
+        //console.log(data)
 
+        // CHART for CanvasJS
         var chart = new CanvasJS.Chart("chartContainer", {
             animationEnabled: true,
             theme: "dark1", // "light1", "light2", "dark1", "dark2"
@@ -85,8 +101,8 @@ function drop(e) {
         chart.render();
         
     })
+    // fetch error
     .catch(error => {
         console.error(error)
     })
-    
 }

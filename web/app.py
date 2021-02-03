@@ -5,13 +5,20 @@ import librosa
 
 app = Flask(__name__)
 
+# route for home page
+# method: GET
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
+# upload route
+# TODO: validation for file
+# method: POST
 @app.route('/upload', methods=['POST'])
 def upload_file():
+
+    # handles memory issue with GPU and tensorflow...
+    # TODO: Remove -- just needed on my machine
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         try:
@@ -22,11 +29,12 @@ def upload_file():
                 print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
         except RuntimeError as e:
             # Memory growth must be set before GPUs have been initialized
-            print(e)
+            print(e)  
 
+    # uploaded file
     audio_file = request.files['audioFile']
 
-    # convert audio file to mfcc data
+    # convert uploaded file to mfcc data
     mfcc = save_mfcc(audio_file)
 
     # add last dimension to data (model expects this)
@@ -50,6 +58,7 @@ def predict(model_name, X):
     # returns values at all output neurons as np array
     predictions = model.predict(X)
 
+    # npArray -> python list
     predictions = predictions.tolist()
 
     return predictions
