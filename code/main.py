@@ -35,13 +35,18 @@ def main():
     if file_type.mime == 'audio/x-wav':
 
         # convert audio file to mfcc data
-        mfcc = save_mfcc(file_path)
+        mfcc_list = save_mfcc(file_path)
 
-        # add last dimension to data (model expects this)
-        mfcc = mfcc[..., np.newaxis]
+        combined_prediction = [0.] * 10
+        for mfcc in mfcc_list:
+            mfcc = mfcc[..., np.newaxis]
+            prediction = predict('cnn_model_77acc_lr15.h5', mfcc)
+            for index in range(10):
+                combined_prediction[index] += prediction[0][index]
 
-        # run prediction using model
-        predictions = predict('my_model.h5', mfcc)
+        # take average by dividing each confidence by the number of predictions
+        for c in range(len(combined_prediction)):
+            combined_prediction[c] /= len(mfcc_list)
 
         # dictionary of labels
         label_dict = {
@@ -58,13 +63,13 @@ def main():
         }
 
         # get index of highest prediction
-        predicted_index = np.argmax(predictions, axis=1)[0]
+        predicted_index = combined_prediction.index(max(combined_prediction))
 
         # get label of highest prediction
         predicted_label = label_dict[predicted_index]
 
         # soft and format confidence list
-        result = zip(label_dict.values(), predictions[0].tolist())
+        result = zip(label_dict.values(), combined_prediction)
         result = list(result)
         result.sort(key=lambda x: x[1], reverse=True)
 
@@ -84,7 +89,7 @@ def main():
 def predict(model_name, X):
 
     # loads the model -- probably should happen outside this function
-    model = tf.keras.models.load_model('../models/' + model_name)
+    model = tf.keras.models.load_model('../models/LL/' + model_name)
 
     # add 3rd dimension for the model (essentially says its just one data input)
     X = X[np.newaxis, ...]
@@ -102,6 +107,8 @@ def save_mfcc(audio_path,
               n_fft=2048,
               hop_length=512):
 
+    mfcc_list = []
+
     # process files
     signal, sr = librosa.load(audio_path, sr=sr)
 
@@ -113,10 +120,12 @@ def save_mfcc(audio_path,
                                 hop_length=hop_length)
 
     # transpose the mfcc data, and slice it to the right size (130, 13)
-    # TODO: I think it might be best to repeatedly slice it and take an average at the end?
     mfcc = mfcc.T
-    mfcc = mfcc[:130]
-    return mfcc
+    for x in range(0, len(mfcc), 130):
+        temp_mfcc = mfcc[x:x+130]
+        if len(temp_mfcc) == 130:
+            mfcc_list.append(temp_mfcc)
+    return mfcc_list
 
 
 if __name__ == "__main__":
