@@ -67,7 +67,7 @@ function drop(e) {
     .then(data => {
         
         // uncomment to see returned data
-        //console.log(data)
+        console.log(data)
 
         // CHART for CanvasJS
         var chart = new CanvasJS.Chart("chartContainer", {
