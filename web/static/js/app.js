@@ -29,7 +29,7 @@ function dragenter(e) {
     e.stopPropagation()
     e.preventDefault()
     //highlight
-    dropzone_bg.style.backgroundColor = "rgb(133, 133, 133, 1)";
+    dz_container.style.backgroundColor = "rgb(133, 133, 133, 1)";
 }
 
 // just stop default behavior and stop propogation here
@@ -43,7 +43,7 @@ function dragleave(e) {
     e.stopPropagation()
     e.preventDefault()
     // remove highlight
-    dropzone_bg.style.backgroundColor = "rgb(133, 133, 133, .8)";
+    dz_container.style.backgroundColor = "rgb(133, 133, 133, .8)";
 }
 
 // if file dropped in dropzone
