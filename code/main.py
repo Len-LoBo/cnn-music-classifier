@@ -3,14 +3,16 @@ import logging
 import sys
 import filetype
 import numpy as np
-import tensorflow as tf
 import librosa
+
+# this silencing tensorflow logging output
+# needs to go before import for...reasons
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
+logging.getLogger('tensorflow').setLevel(logging.FATAL)
+import tensorflow as tf
 
 
 def main():
-    # suppress non-critical tensorflow logging to command line
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
-    logging.getLogger('tensorflow').setLevel(logging.FATAL)
 
     # check for command line argument, and find its file type
     try:
@@ -34,9 +36,13 @@ def main():
     # if audio file is correct type (wav)
     if file_type.mime == 'audio/x-wav':
 
+        print("\nPredicting...\n")
+
         # convert audio file to mfcc data
         mfcc_list = save_mfcc(file_path)
 
+        # song is split up into segements
+        # below code takes average of confidences from all segements
         combined_prediction = [0.] * 10
         for mfcc in mfcc_list:
             mfcc = mfcc[..., np.newaxis]
@@ -48,7 +54,7 @@ def main():
         for c in range(len(combined_prediction)):
             combined_prediction[c] /= len(mfcc_list)
 
-        # dictionary of labels
+        # genre labels mapped to integers
         label_dict = {
             0: 'Jazz',
             1: 'Reggae',
@@ -62,20 +68,23 @@ def main():
             9: 'Pop'
         }
 
-        # get index of highest prediction
+        # get index of highest confidence prediction
         predicted_index = combined_prediction.index(max(combined_prediction))
 
-        # get label of highest prediction
+        # get label of highest confidence prediction
         predicted_label = label_dict[predicted_index]
 
-        # soft and format confidence list
+        # sort and format confidences list
         result = zip(label_dict.values(), combined_prediction)
         result = list(result)
         result.sort(key=lambda x: x[1], reverse=True)
 
         # print output
+        print('=================================')
         print(f"Predicted Genre: {predicted_label}\n")
+        print('=================================')
         print(f"Confidences:")
+        print('=================================')
         for x, y in result:
             print(f'{x}: %{y*100:.2f}')
 
@@ -89,7 +98,7 @@ def main():
 def predict(model_name, X):
 
     # loads the model -- probably should happen outside this function
-    model = tf.keras.models.load_model('../models/LL/' + model_name)
+    model = tf.keras.models.load_model('models/' + model_name)
 
     # add 3rd dimension for the model (essentially says its just one data input)
     X = X[np.newaxis, ...]
@@ -109,18 +118,22 @@ def save_mfcc(audio_path,
 
     mfcc_list = []
 
-    # process files
+    # process audio files
     signal, sr = librosa.load(audio_path, sr=sr)
 
-    # store mfcc
+    # extract mfcc feature data
     mfcc = librosa.feature.mfcc(signal,
                                 sr=sr,
                                 n_fft=n_fft,
                                 n_mfcc=n_mfcc,
                                 hop_length=hop_length)
 
-    # transpose the mfcc data, and slice it to the right size (130, 13)
+    # transpose the mfcc data
     mfcc = mfcc.T
+
+    # model expects (1, 130, 13, 1) sized data
+    # therefore full song must be split into segments of mfcc data
+    # store all segments in list of mfcc data (130 in length)
     for x in range(0, len(mfcc), 130):
         temp_mfcc = mfcc[x:x+130]
         if len(temp_mfcc) == 130:
