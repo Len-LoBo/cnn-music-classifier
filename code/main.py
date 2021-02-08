@@ -84,7 +84,7 @@ def main():
         print(f"Predicted Genre: {predicted_label}\n")
         print('=================================')
         print(f"Confidences:")
-        print('=================================')
+        print('---------------------------------')
         for x, y in result:
             print(f'{x}: %{y*100:.2f}')
 
