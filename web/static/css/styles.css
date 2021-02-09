@@ -1,49 +1,84 @@
-h1 {
-    text-align: center;
-    color:rgb(39, 228, 253);
-    text-shadow: 2px 2px #000000;
-    font-size: 4rem;
-}
+/*Color Scheme
+#0B0C10 - almost black
+#1F2833 - brighter black
+#C5C6C7 - light grey
+#66FCF1 - teal accent
+#45A29E - darker teal
+*/
 
 body {
-    background-color:rgba(60, 60, 60, 1);
+    font-family: "Rubik";
+    min-width: 400px;
+    min-height: 400px;
+    overflow: auto;
+}
+
+.split {
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+}
+
+.left {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 0;
+    width: 65%;
+    background-color:#0B0C10;
+}
+
+.right {
+    right: 0;
+    width: 35%;
+    background-color: #1F2833;
 }
 
 .dz_container {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(114, 114, 114, 0.8);
-    text-align: center;
-    width: 90%;
-    max-width: 1000px;
-    height: 500px;
-    margin: auto;
-    position: relative;
+    min-width: 200px;
+    min-height: 200px;
+    margin: 20px 20px;
+    flex-basis: 800px;
+    height: 60%;
+    background-color: #1F2833;    
 }
 
 .dropzone {
     width: 100%;
     height: 100%;
-    opacity: 0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background-color: red;
     z-index: 5;
 }
 
-#audio_upload {
-    width: auto;
-    height: 50%;
+.rounded {
+    border-radius: 25px;
 }
 
-#chartContainer {
-    position:absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 4;
+img {
+    position: absolute;
+    filter: grayscale(100%);
+    width: 150px;
+    height: 150px;
+    z-index: 1;
+}
 
+.text_panel {
+    padding: 20px 30px;
+}
+
+h3 {
+    color: #66FCF1;
+    font-size: 2rem;
+}
+
+p {
+    color: #C5C6C7;
+}
+
+b {
+    color: white;
 }
