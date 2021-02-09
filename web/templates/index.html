@@ -6,7 +6,7 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename= 'css/styles.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Rubik">
 
         
@@ -15,7 +15,7 @@
         <div class="split left">
                 <div class="dz_container rounded">
                     <div id="dz" class="dropzone rounded"></div>
-                    <img src="../static/images/audio_upload.png" alt="">
+                    <img src="{{ url_for('static', filename='images/audio_upload.png') }}" alt="">
                 </div>
         </div>
         <div class="split right">
