@@ -6,7 +6,7 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="../static/css/styles.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename= 'css/styles.css') }}">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Rubik">
 
         
@@ -40,7 +40,7 @@
 
             </div>
         </div>
-        <script src="../static/js/canvasjs.min.js"></script>
-        <script src="../static/js/app.js"></script>
+        <script src="{{url_for('static', filename='js/canvasjs.min.js')}}"></script>
+        <script src="{{url_for('static', filename='js/app.js')}}"></script>
     </body>
 </html>
