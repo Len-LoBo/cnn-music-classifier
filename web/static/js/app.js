@@ -29,7 +29,7 @@ function dragenter(e) {
     e.stopPropagation()
     e.preventDefault()
     //highlight
-    dz_container.style.backgroundColor = "#1F2845";
+    dz_container.style.backgroundColor = "#1F4045";
 }
 
 // just stop default behavior and stop propogation here
@@ -70,7 +70,7 @@ function drop(e) {
         console.log(data)
 
         // CHART for CanvasJS
-        var chart = new CanvasJS.Chart("chartContainer", {
+        var chart = new CanvasJS.Chart("dz", {
             animationEnabled: true,
             theme: "dark1", // "light1", "light2", "dark1", "dark2"
             title:{
@@ -81,9 +81,6 @@ function drop(e) {
             },
             data: [{        
                 type: "column",  
-                showInLegend: true, 
-                legendMarkerColor: "grey",
-                legendText: "Genres",
                 dataPoints: [      
                     { y: data['predictions'][0][0], label: "Jazz" },
                     { y: data['predictions'][0][1],  label: "Reggae" },

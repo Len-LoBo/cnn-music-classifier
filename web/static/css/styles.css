@@ -27,6 +27,7 @@ body {
     align-items: center;
     left: 0;
     width: 65%;
+    background-image: url("../images/crowd.jpg");
     background-color:#0B0C10;
 }
 
@@ -34,6 +35,8 @@ body {
     right: 0;
     width: 35%;
     background-color: #1F2833;
+    box-shadow: 0px 0px 10px 2px black;
+    
 }
 
 .dz_container {
@@ -42,10 +45,13 @@ body {
     align-items: center;
     min-width: 200px;
     min-height: 200px;
+    max-height: 700px;
     margin: 20px 20px;
-    flex-basis: 800px;
+    flex-basis: 1000px;
     height: 60%;
-    background-color: #1F2833;    
+    background-color: #1F2833;
+    opacity: 1;
+    box-shadow: 0px 0px 10px 1px rgb(0, 0, 0);
 }
 
 .dropzone {
