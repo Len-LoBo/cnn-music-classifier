@@ -1,4 +1,3 @@
-
 // preventing the browser window from opening dropped files
 window.addEventListener("dragover",function(e){
     e.preventDefault();
@@ -7,8 +6,6 @@ window.addEventListener("dragover",function(e){
 window.addEventListener("drop",function(e){
     e.preventDefault();
   },false);
-//
-
 
 // drag and drop
 
@@ -55,51 +52,75 @@ function drop(e) {
     //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
     const files = dt.files;
-    const formData = new FormData() 
-    formData.append('audioFile', files[0])
+    const file = files[0];
 
-    // uses fetch to POST file to URL
-    fetch('/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        
-        // uncomment to see returned data
-        console.log(data)
+    // checks file size, makes sure <= 10MB
+    const fsize = file.size;
+    const mbsize = Math.round((fsize/1048576));
+    var isUnder10Mb = (mbsize <= 10);
 
-        // CHART for CanvasJS
-        var chart = new CanvasJS.Chart("dz", {
-            animationEnabled: true,
-            theme: "dark1", // "light1", "light2", "dark1", "dark2"
-            title:{
-                text: "Genre Confidence"
-            },
-            axisY: {
-                title: "Confidence"
-            },
-            data: [{        
-                type: "column",  
-                dataPoints: [      
-                    { y: data['predictions'][0][0], label: "Jazz" },
-                    { y: data['predictions'][0][1],  label: "Reggae" },
-                    { y: data['predictions'][0][2],  label: "Rock" },
-                    { y: data['predictions'][0][3],  label: "Blues" },
-                    { y: data['predictions'][0][4],  label: "HipHop" },
-                    { y: data['predictions'][0][5], label: "Country" },
-                    { y: data['predictions'][0][6],  label: "Metal" },
-                    { y: data['predictions'][0][7],  label: "Classical" },
-                    { y: data['predictions'][0][8],  label: "Disco" },
-                    { y: data['predictions'][0][9],  label: "Pop" },
-                ]
-            }]
-        });
-        chart.render();
-        
-    })
-    // fetch error
-    .catch(error => {
-        console.error(error)
-    })
+    // check if file is wav (only type currently supported)
+    var isWav = (file.type == 'audio/wav');
+    
+    // if size and type checks pass
+    if (isUnder10Mb && isWav) {
+
+        // wrap file in formData object for fetch body
+        const formData = new FormData();
+        formData.append('audioFile', files[0]);
+    
+        // uses fetch to POST file to URL
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            
+            // uncomment to see returned data
+            //console.log(data)
+    
+            // CHART for CanvasJS
+            var chart = new CanvasJS.Chart("dz", {
+                animationEnabled: true,
+                theme: "dark1", // "light1", "light2", "dark1", "dark2"
+                title:{
+                    text: "Genre Confidence"
+                },
+                axisY: {
+                    title: "Confidence"
+                },
+                data: [{        
+                    type: "column",  
+                    dataPoints: [      
+                        { y: data['predictions'][0][0], label: "Jazz" },
+                        { y: data['predictions'][0][1],  label: "Reggae" },
+                        { y: data['predictions'][0][2],  label: "Rock" },
+                        { y: data['predictions'][0][3],  label: "Blues" },
+                        { y: data['predictions'][0][4],  label: "HipHop" },
+                        { y: data['predictions'][0][5], label: "Country" },
+                        { y: data['predictions'][0][6],  label: "Metal" },
+                        { y: data['predictions'][0][7],  label: "Classical" },
+                        { y: data['predictions'][0][8],  label: "Disco" },
+                        { y: data['predictions'][0][9],  label: "Pop" },
+                    ]
+                }]
+            });
+            chart.render();
+            
+        })
+        // fetch error
+        .catch(error => {
+            console.error(error)
+        })
+
+    // if wav file too big
+    } else if (isWav) {
+        dz_container.style.backgroundColor = "#1F2833";
+        console.log("File too Large")
+    // if not a wav file (or both not wav and too big)
+    } else {
+        dz_container.style.backgroundColor = "#1F2833";
+        console.log("Invalid File Type.")
+    }
 }
