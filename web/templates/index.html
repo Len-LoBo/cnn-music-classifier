@@ -6,18 +6,46 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename= 'css/styles.css') }}">
+        <!-- <link rel="stylesheet" href="../static/css/styles.css"> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Rubik">
+
         
     </head>
     <body>
-        <h1>CNN Music Genre Classifier</h1>
-        <div class="dz_container">
-            <div class="dropzone"></div>
-            <img id="audio_upload" src="static/images/audio_upload.png"/>
-            <div id="chartContainer"></div>
+        <div class="split left">
+            <div id="prediction_banner" class="hide"></div>
+            <div class="dz_container rounded">
+                <div id="dz" class="dropzone rounded"></div>
+                <!-- <img src="../static/images/audio_upload.png" alt=""> -->
+                <img src="{{ url_for('static', filename='images/audio_upload.png') }}" alt="">
+            </div>
         </div>
-        <script src="{{url_for('static', filename='js/app.js')}}"></script>
+        <div class="split right">
+            <div class="text_panel">
+                <h3>MUSIC GENRE CLASSIFIER</h3>
+                <p><b>Lorem Ipsum</b> is simply dummy text of the printing and typesetting industry. 
+                   Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+                   when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                </p>
+                <br>
+                <br>
+                <p><b>Lorem Ipsum</b> is simply dummy text of the printing and typesetting industry. 
+                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+                when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                </p>
+                <br>
+                <br>
+                <br>
+                <p><b>Lorem Ipsum</b> is simply dummy text of the printing and typesetting industry. 
+                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+                when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+
+            </div>
+        </div>
+        <!-- <script src="../static/js/canvasjs.min.js"></script> -->
+        <!-- <script src="../static/js/app.js"></script> -->
         <script src="{{url_for('static', filename='js/canvasjs.min.js')}}"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+        <script src="{{url_for('static', filename='js/app.js')}}"></script>
     </body>
 </html>

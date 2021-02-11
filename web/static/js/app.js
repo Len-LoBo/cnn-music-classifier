@@ -1,4 +1,3 @@
-
 // preventing the browser window from opening dropped files
 window.addEventListener("dragover",function(e){
     e.preventDefault();
@@ -7,16 +6,15 @@ window.addEventListener("dragover",function(e){
 window.addEventListener("drop",function(e){
     e.preventDefault();
   },false);
-//
-
 
 // drag and drop
 
 // dz_container is for styling
 let dz_container = document.querySelector('.dz_container');
-
 // dropzone has for event listener
 let dropzone = document.querySelector('.dropzone');
+// prediction banner
+let prediction = document.getElementById('prediction_banner');
 
 // adding dropzone event listeners
 dropzone.addEventListener("dragenter", dragenter, false);
@@ -29,7 +27,7 @@ function dragenter(e) {
     e.stopPropagation()
     e.preventDefault()
     //highlight
-    dz_container.style.backgroundColor = "rgb(133, 133, 133, 1)";
+    dz_container.style.backgroundColor = "#1F4045";
 }
 
 // just stop default behavior and stop propogation here
@@ -43,7 +41,7 @@ function dragleave(e) {
     e.stopPropagation()
     e.preventDefault()
     // remove highlight
-    dz_container.style.backgroundColor = "rgb(133, 133, 133, .8)";
+    dz_container.style.backgroundColor = "#1F2833";
 }
 
 // if file dropped in dropzone
@@ -55,54 +53,117 @@ function drop(e) {
     //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
     const files = dt.files;
-    const formData = new FormData() 
-    formData.append('audioFile', files[0])
+    const file = files[0];
 
-    // uses fetch to POST file to URL
-    fetch('/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        
-        // uncomment to see returned data
-        console.log(data)
+    // checks file size, makes sure <= 10MB
+    const fsize = file.size;
+    const mbsize = Math.round((fsize/1048576));
+    var isUnder10Mb = (mbsize <= 10);
 
-        // CHART for CanvasJS
-        var chart = new CanvasJS.Chart("chartContainer", {
-            animationEnabled: true,
-            theme: "dark1", // "light1", "light2", "dark1", "dark2"
-            title:{
-                text: "Genre Confidence"
-            },
-            axisY: {
-                title: "Confidence"
-            },
-            data: [{        
-                type: "column",  
-                showInLegend: true, 
-                legendMarkerColor: "grey",
-                legendText: "Genres",
-                dataPoints: [      
-                    { y: data['predictions'][0][0], label: "Jazz" },
-                    { y: data['predictions'][0][1],  label: "Reggae" },
-                    { y: data['predictions'][0][2],  label: "Rock" },
-                    { y: data['predictions'][0][3],  label: "Blues" },
-                    { y: data['predictions'][0][4],  label: "HipHop" },
-                    { y: data['predictions'][0][5], label: "Country" },
-                    { y: data['predictions'][0][6],  label: "Metal" },
-                    { y: data['predictions'][0][7],  label: "Classical" },
-                    { y: data['predictions'][0][8],  label: "Disco" },
-                    { y: data['predictions'][0][9],  label: "Pop" },
-                ]
-            }]
-        });
-        chart.render();
-        
-    })
-    // fetch error
-    .catch(error => {
-        console.error(error)
-    })
+    // check if file is wav (only type currently supported)
+    var isWav = (file.type == 'audio/wav');
+    
+    // if size and type checks pass
+    if (isUnder10Mb && isWav) {
+
+        // wrap file in formData object for fetch body
+        const formData = new FormData();
+        formData.append('audioFile', files[0]);
+    
+        // uses fetch to POST file to URL
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            // extract first item in data object regardless of key name
+            let confidence_key = `${Object.keys(data)[0]}`
+
+            // store confidences array
+            let confidences = data[confidence_key][0]
+
+            // get index of maximum value in prediction array
+            let maxValue = 0;
+            let maxIndex = 0;
+            for (let i = 0; i < 10; i++) {
+                if (confidences[i] > maxValue) {
+                    maxValue = confidences[i];
+                    maxIndex = i;
+                }
+            }
+            
+            // for mapping confidence index to genre label
+            let genre_labels = new Map([
+                [0, "Jzz"],
+                [1, "Reggae"],
+                [2, "Rock"],
+                [3, "Blues"],
+                [4, "HipHop"],
+                [5, "Country"],
+                [6, "Metal"],
+                [7, "Classical"],
+                [8, "Disco"],
+                [9, "Pop"]
+            ]);
+
+            // store prediction (genre with highest confidence)
+            let prediction = genre_labels.get(maxIndex);
+
+            //show the prediction banner
+            //prediction.innerHTML = `Prediction: ${genre_labels.get(maxIndex)}`
+            //prediction.classList.remove('hide');
+    
+            // CHART for CanvasJS
+            var chart = new CanvasJS.Chart("dz", {
+                animationEnabled: true,
+                theme: "dark1", // "light1", "light2", "dark1", "dark2"
+                backgroundColor: "#1F2833",
+                title:{
+                    text: `Prediction: ${prediction}`,
+                    fontFamily: "Rubik",
+                    fontColor: "#66FCF1"
+                },
+                axisY: {
+                    title: "Confidence",
+                    fontFamily: "Rubik",
+                    fontColor: "#C5C6C7",
+                    minimum: 0
+                },
+                data: [{        
+                    type: "column",
+                    indexLabelFontFamily: "Rubik",
+                    indexLabelFontColor: "#C5C6C7",  
+                    dataPoints: [      
+                        { y: confidences[0], label: "Jazz" },
+                        { y: confidences[1],  label: "Reggae" },
+                        { y: confidences[2],  label: "Rock" },
+                        { y: confidences[3],  label: "Blues" },
+                        { y: confidences[4],  label: "HipHop" },
+                        { y: confidences[5], label: "Country" },
+                        { y: confidences[6],  label: "Metal" },
+                        { y: confidences[7],  label: "Classical" },
+                        { y: confidences[8],  label: "Disco" },
+                        { y: confidences[9],  label: "Pop" },
+                    ]
+                }]
+            });
+            chart.render();
+            
+        })
+        // fetch error
+        .catch(error => {
+            console.error(error)
+        })
+
+    // if wav file too big
+    } else if (isWav) {
+        dz_container.style.backgroundColor = "#1F2833";
+        console.log("File too Large")
+    // if not a wav file (or both not wav and too big)
+    } else {
+        dz_container.style.backgroundColor = "#1F2833";
+        console.log("Invalid File Type.")
+    }
 }
