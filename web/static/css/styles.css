@@ -21,20 +21,38 @@ body {
     overflow-x: hidden;
 }
 
+@media (max-width: 500px) {
+    .left {
+        width: 100%
+    }
+
+    .right {
+        width: 0%
+    }
+}
+
+@media (min-width: 501px) {
+    .left {
+        width: 65%
+    }
+
+    .right {
+        width: 35%
+    }
+}
+
 .left {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     left: 0;
-    width: 65%;
     background-image: url("../images/crowd.jpg");
     background-color:#0B0C10;
 }
 
 .right {
     right: 0;
-    width: 35%;
     background-color: #1F2833;
     box-shadow: 0px 0px 10px 2px black;
     
@@ -61,13 +79,14 @@ body {
     z-index: 5;
 }
 
-.banner {
+#prediction_banner {
     background-color: #0B0C10;
+    text-align: center;
+    padding: 20px 0px;
     height: 100px;
     width: 100%;
     font-size: 2rem;
     color: #66FCF1
-
 }
 
 .rounded {
@@ -98,7 +117,6 @@ p {
 b {
     color: white;
 }
-
 
 .hide {
     display: none;
