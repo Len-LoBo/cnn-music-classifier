@@ -11,9 +11,10 @@ window.addEventListener("drop",function(e){
 
 // dz_container is for styling
 let dz_container = document.querySelector('.dz_container');
-
 // dropzone has for event listener
 let dropzone = document.querySelector('.dropzone');
+// prediction banner
+let prediction = document.querySelector('.banner');
 
 // adding dropzone event listeners
 dropzone.addEventListener("dragenter", dragenter, false);
@@ -79,6 +80,27 @@ function drop(e) {
             
             // uncomment to see returned data
             //console.log(data)
+
+            // get index of maximum value in prediction array
+            // this will be the predicted genre
+            let maxIndex = data['predictions'][0].indexOf(Math.max(data['predictions'][0]));
+
+            let genre_labels = new Map([
+                [0, "Jaxx"],
+                [1, "Reggae"],
+                [2, "Rock"],
+                [3, "Blues"],
+                [4, "HipHop"],
+                [5, "Country"],
+                [6, "Metal"],
+                [7, "Classical"],
+                [8, "Disco"],
+                [9, "Pop"]
+            ]);
+
+            //show the prediction banner
+            prediction.innerHTML = `Prediction: ${genre_labels[maxIndex]}`
+            prediction.classList.remove('hide');
     
             // CHART for CanvasJS
             var chart = new CanvasJS.Chart("dz", {
