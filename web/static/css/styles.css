@@ -79,16 +79,6 @@ body {
     z-index: 5;
 }
 
-#prediction_banner {
-    background-color: #0B0C10;
-    text-align: center;
-    padding: 20px 0px;
-    height: 100px;
-    width: 100%;
-    font-size: 2rem;
-    color: #66FCF1
-}
-
 .rounded {
     border-radius: 25px;
 }

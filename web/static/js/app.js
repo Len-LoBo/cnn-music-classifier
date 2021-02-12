@@ -46,7 +46,7 @@ function dragleave(e) {
 
 // if file dropped in dropzone
 //TODO: File validation
-function drop(e) {
+async function drop(e) {
     e.stopPropagation();
     e.preventDefault();
 
@@ -69,93 +69,31 @@ function drop(e) {
         // wrap file in formData object for fetch body
         const formData = new FormData();
         formData.append('audioFile', files[0]);
-    
-        // uses fetch to POST file to URL
-        fetch('/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
 
-            // extract first item in data object regardless of key name
-            let confidence_key = `${Object.keys(data)[0]}`
+        var confidences = await fetchPrediction(formData);
+        
+        var maxIndex = getMaxIndex(confidences)
+ 
+        // for mapping confidence index to genre label
+        let genre_labels = new Map([
+            [0, "Jazz"],
+            [1, "Reggae"],
+            [2, "Rock"],
+            [3, "Blues"],
+            [4, "HipHop"],
+            [5, "Country"],
+            [6, "Metal"],
+            [7, "Classical"],
+            [8, "Disco"],
+            [9, "Pop"]
+        ]);
 
-            // store confidences array
-            let confidences = data[confidence_key][0]
+        // store prediction (genre with highest confidence)
+        let prediction = genre_labels.get(maxIndex);
+        
+        // configures and renders the confidence chart on the page
+        displayChart(confidences, prediction)
 
-            // get index of maximum value in prediction array
-            let maxValue = 0;
-            let maxIndex = 0;
-            for (let i = 0; i < 10; i++) {
-                if (confidences[i] > maxValue) {
-                    maxValue = confidences[i];
-                    maxIndex = i;
-                }
-            }
-            
-            // for mapping confidence index to genre label
-            let genre_labels = new Map([
-                [0, "Jzz"],
-                [1, "Reggae"],
-                [2, "Rock"],
-                [3, "Blues"],
-                [4, "HipHop"],
-                [5, "Country"],
-                [6, "Metal"],
-                [7, "Classical"],
-                [8, "Disco"],
-                [9, "Pop"]
-            ]);
-
-            // store prediction (genre with highest confidence)
-            let prediction = genre_labels.get(maxIndex);
-
-            //show the prediction banner
-            //prediction.innerHTML = `Prediction: ${genre_labels.get(maxIndex)}`
-            //prediction.classList.remove('hide');
-    
-            // CHART for CanvasJS
-            var chart = new CanvasJS.Chart("dz", {
-                animationEnabled: true,
-                theme: "dark1", // "light1", "light2", "dark1", "dark2"
-                backgroundColor: "#1F2833",
-                title:{
-                    text: `Prediction: ${prediction}`,
-                    fontFamily: "Rubik",
-                    fontColor: "#66FCF1"
-                },
-                axisY: {
-                    title: "Confidence",
-                    fontFamily: "Rubik",
-                    fontColor: "#C5C6C7",
-                    minimum: 0
-                },
-                data: [{        
-                    type: "column",
-                    indexLabelFontFamily: "Rubik",
-                    indexLabelFontColor: "#C5C6C7",  
-                    dataPoints: [      
-                        { y: confidences[0], label: "Jazz" },
-                        { y: confidences[1],  label: "Reggae" },
-                        { y: confidences[2],  label: "Rock" },
-                        { y: confidences[3],  label: "Blues" },
-                        { y: confidences[4],  label: "HipHop" },
-                        { y: confidences[5], label: "Country" },
-                        { y: confidences[6],  label: "Metal" },
-                        { y: confidences[7],  label: "Classical" },
-                        { y: confidences[8],  label: "Disco" },
-                        { y: confidences[9],  label: "Pop" },
-                    ]
-                }]
-            });
-            chart.render();
-            
-        })
-        // fetch error
-        .catch(error => {
-            console.error(error)
-        })
 
     // if wav file too big
     } else if (isWav) {
@@ -166,4 +104,75 @@ function drop(e) {
         dz_container.style.backgroundColor = "#1F2833";
         console.log("Invalid File Type.")
     }
+}
+
+//posts file and gets prediction response
+async function fetchPrediction(formData) {
+    const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+    });
+
+    const json = await res.json();
+    
+    // extract first item in data object regardless of key name
+    let confidence_key = `${Object.keys(json)[0]}`;
+
+    // store confidences array
+    let confidences = json[confidence_key][0];
+
+    return confidences;
+}
+
+// gets index of max value in array
+function getMaxIndex(array) {
+    // get index of maximum value in prediction array
+    let maxValue = 0;
+    let maxIndex = 0;
+    for (let i = 0; i < 10; i++) {
+        if (array[i] > maxValue) {
+            maxValue = array[i];
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
+}
+
+//configures and renders ChartJS chart
+function displayChart(confidences, prediction) {
+
+    var chart = new CanvasJS.Chart("dz", {
+        animationEnabled: true,
+        theme: "dark1", // "light1", "light2", "dark1", "dark2"
+        backgroundColor: "#1F2833",
+        title:{
+            text: `Prediction: ${prediction}`,
+            fontFamily: "Rubik",
+            fontColor: "#66FCF1"
+        },
+        axisY: {
+            title: "Confidence",
+            fontFamily: "Rubik",
+            fontColor: "#C5C6C7",
+            minimum: 0
+        },
+        data: [{        
+            type: "column",
+            indexLabelFontFamily: "Rubik",
+            indexLabelFontColor: "#C5C6C7",  
+            dataPoints: [      
+                { y: confidences[0], label: "Jazz" },
+                { y: confidences[1],  label: "Reggae" },
+                { y: confidences[2],  label: "Rock" },
+                { y: confidences[3],  label: "Blues" },
+                { y: confidences[4],  label: "HipHop" },
+                { y: confidences[5], label: "Country" },
+                { y: confidences[6],  label: "Metal" },
+                { y: confidences[7],  label: "Classical" },
+                { y: confidences[8],  label: "Disco" },
+                { y: confidences[9],  label: "Pop" },
+            ]
+        }]
+    });
+    chart.render();
 }
