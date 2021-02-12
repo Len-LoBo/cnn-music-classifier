@@ -7,20 +7,37 @@ window.addEventListener("drop",function(e){
     e.preventDefault();
   },false);
 
+    // for mapping confidence index to genre label
+let genre_labels = new Map([
+    [0, "Jazz"],
+    [1, "Reggae"],
+    [2, "Rock"],
+    [3, "Blues"],
+    [4, "HipHop"],
+    [5, "Country"],
+    [6, "Metal"],
+    [7, "Classical"],
+    [8, "Disco"],
+    [9, "Pop"]
+]);
+
 // drag and drop
 
 // dz_container is for styling
 let dz_container = document.querySelector('.dz_container');
 // dropzone has for event listener
-let dropzone = document.querySelector('.dropzone');
-// prediction banner
-let prediction = document.getElementById('prediction_banner');
+let dropzone = document.getElementById('dz');
+//file selector
+let fileSelector = document.getElementById('songUpload');
 
 // adding dropzone event listeners
+dropzone.addEventListener("click", click, false);
 dropzone.addEventListener("dragenter", dragenter, false);
 dropzone.addEventListener("dragover", dragover, false);
 dropzone.addEventListener("dragleave", dragleave, false);
 dropzone.addEventListener("drop", drop, false);
+fileSelector.addEventListener("change", handleFiles, false);
+
 
 // when file dragged into dropzone
 function dragenter(e) {
@@ -33,7 +50,7 @@ function dragenter(e) {
 // just stop default behavior and stop propogation here
 function dragover(e) {
     e.stopPropagation()
-    e.preventDefault() 
+    e.preventDefault()
 }
 
 // when file is dragged out of dropzone
@@ -44,8 +61,51 @@ function dragleave(e) {
     dz_container.style.backgroundColor = "#1F2833";
 }
 
+
+// sends click of dropzone to file input
+function click(e) {
+    fileSelector.click();   
+}
+
+// if file selected in file browser
+async function handleFiles() {
+    const fileList = this.files;
+    const file = fileList[0];
+
+    // checks for valid file size and type
+    var isUnder10Mb = isValidSize(file);
+    var isWav = isValidType(file);
+     
+     // if size and type checks pass
+     if (isUnder10Mb && isWav) {
+ 
+         // wrap file in formData object for fetch body
+         const formData = new FormData();
+         formData.append('audioFile', file);
+
+         var confidences = await fetchPrediction(formData);
+         var maxIndex = getMaxIndex(confidences)
+  
+         // store prediction (genre with highest confidence)
+         let prediction = genre_labels.get(maxIndex);
+         
+         // configures and renders the confidence chart on the page
+         displayChart(confidences, prediction)
+ 
+ 
+     // if wav file too big
+     } else if (isWav) {
+         dz_container.style.backgroundColor = "#1F2833";
+         console.log("File too Large")
+     // if not a wav file (or both not wav and too big)
+     } else {
+         dz_container.style.backgroundColor = "#1F2833";
+         console.log("Invalid File Type.")
+     }
+    
+}
+
 // if file dropped in dropzone
-//TODO: File validation
 async function drop(e) {
     e.stopPropagation();
     e.preventDefault();
@@ -55,39 +115,20 @@ async function drop(e) {
     const files = dt.files;
     const file = files[0];
 
-    // checks file size, makes sure <= 10MB
-    const fsize = file.size;
-    const mbsize = Math.round((fsize/1048576));
-    var isUnder10Mb = (mbsize <= 10);
-
-    // check if file is wav (only type currently supported)
-    var isWav = (file.type == 'audio/wav');
+    // checks for valid file size and type
+    var isUnder10Mb = isValidSize(file);
+    var isWav = isValidType(file);
     
     // if size and type checks pass
     if (isUnder10Mb && isWav) {
 
         // wrap file in formData object for fetch body
         const formData = new FormData();
-        formData.append('audioFile', files[0]);
+        formData.append('audioFile', file);
 
         var confidences = await fetchPrediction(formData);
-        
         var maxIndex = getMaxIndex(confidences)
  
-        // for mapping confidence index to genre label
-        let genre_labels = new Map([
-            [0, "Jazz"],
-            [1, "Reggae"],
-            [2, "Rock"],
-            [3, "Blues"],
-            [4, "HipHop"],
-            [5, "Country"],
-            [6, "Metal"],
-            [7, "Classical"],
-            [8, "Disco"],
-            [9, "Pop"]
-        ]);
-
         // store prediction (genre with highest confidence)
         let prediction = genre_labels.get(maxIndex);
         
@@ -105,6 +146,7 @@ async function drop(e) {
         console.log("Invalid File Type.")
     }
 }
+
 
 //posts file and gets prediction response
 async function fetchPrediction(formData) {
@@ -124,6 +166,7 @@ async function fetchPrediction(formData) {
     return confidences;
 }
 
+
 // gets index of max value in array
 function getMaxIndex(array) {
     // get index of maximum value in prediction array
@@ -137,6 +180,7 @@ function getMaxIndex(array) {
     }
     return maxIndex;
 }
+
 
 //configures and renders ChartJS chart
 function displayChart(confidences, prediction) {
@@ -175,4 +219,16 @@ function displayChart(confidences, prediction) {
         }]
     });
     chart.render();
+}
+
+
+function isValidSize(file) {
+    const fsize = file.size;
+    const mbsize = Math.round((fsize/1048576));
+    return mbsize <= 10;
+}
+
+
+function isValidType(file) {
+    return file.type == 'audio/wav'
 }

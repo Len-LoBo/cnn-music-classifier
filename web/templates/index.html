@@ -15,6 +15,9 @@
     <body>
         <div class="split left">
             <div class="dz_container rounded">
+                <div class="hidden">
+                    <input type="file" id=songUpload>
+                </div>
                 <div id="dz" class="dropzone rounded"></div>
                 <!-- <img src="../static/images/audio_upload.png" alt=""> -->
                 <img src="{{ url_for('static', filename='images/audio_upload.png') }}" alt="">
