@@ -1,3 +1,6 @@
+FILE_SIZE = 50
+
+
 // preventing the browser window from opening dropped files
 window.addEventListener("dragover",function(e){
     e.preventDefault();
@@ -96,11 +99,13 @@ async function handleFiles() {
      // if wav file too big
      } else if (isWav) {
          dz_container.style.backgroundColor = "#1F2833";
-         console.log("File too Large")
+         iqwerty.toast.toast("File too large");
+         console.log("File too Large");
      // if not a wav file (or both not wav and too big)
      } else {
          dz_container.style.backgroundColor = "#1F2833";
-         console.log("Invalid File Type.")
+         iqwerty.toast.toast("Invalid File Type");
+         console.log("Invalid File Type.");
      }
     
 }
@@ -109,6 +114,8 @@ async function handleFiles() {
 async function drop(e) {
     e.stopPropagation();
     e.preventDefault();
+    //sets background back to correct color
+    dz_container.style.backgroundColor = "#1F2833";
 
     //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
@@ -125,25 +132,31 @@ async function drop(e) {
         // wrap file in formData object for fetch body
         const formData = new FormData();
         formData.append('audioFile', file);
-
-        var confidences = await fetchPrediction(formData);
-        var maxIndex = getMaxIndex(confidences)
- 
-        // store prediction (genre with highest confidence)
-        let prediction = genre_labels.get(maxIndex);
-        
-        // configures and renders the confidence chart on the page
-        displayChart(confidences, prediction)
+        try {
+            var confidences = await fetchPrediction(formData);
+            var maxIndex = getMaxIndex(confidences)
+    
+            // store prediction (genre with highest confidence)
+            let prediction = genre_labels.get(maxIndex);
+            
+            // configures and renders the confidence chart on the page
+            displayChart(confidences, prediction)
+        } catch (error) {
+            console.log(error)
+            showToast("Bad Response from Server")
+        }
 
 
     // if wav file too big
     } else if (isWav) {
         dz_container.style.backgroundColor = "#1F2833";
-        console.log("File too Large")
+        showToast(`File size must be less than ${FILE_SIZE}`);
+        //console.log(`File size must be less than ${FILE_SIZE}`)
     // if not a wav file (or both not wav and too big)
     } else {
         dz_container.style.backgroundColor = "#1F2833";
-        console.log("Invalid File Type.")
+        showToast("Invalid File Type.  WAV or MP3 required.");
+        //console.log("Invalid File Type.  WAV or MP3 required.")
     }
 }
 
@@ -153,7 +166,11 @@ async function fetchPrediction(formData) {
     const res = await fetch('/upload', {
         method: 'POST',
         body: formData
-    });
+    })
+
+    if (res.status >= 400 && res.status < 600) {
+        throw new Error("Bad response from Server")
+    }
 
     const json = await res.json();
     
@@ -226,10 +243,26 @@ function displayChart(confidences, prediction) {
 function isValidSize(file) {
     const fsize = file.size;
     const mbsize = Math.round((fsize/1048576));
-    return mbsize <= 10;
+    return mbsize <= 50;
 }
 
 
+//checks if file is wav file
 function isValidType(file) {
     return file.type == 'audio/wav'
+}
+
+
+//displays toast at bottom of the screen
+function showToast(message) {
+    const options = {
+        style: {
+            main: {
+                background: "black",
+                color: "white",
+                width: "25%",
+            },
+        },
+    };
+    iqwerty.toast.toast(message, options)
 }
