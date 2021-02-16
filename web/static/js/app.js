@@ -222,6 +222,7 @@ function displayChart(confidences, prediction) {
 }
 
 
+//checks for valid size
 function isValidSize(file) {
     const fsize = file.size;
     const mbsize = Math.round((fsize/1048576));
