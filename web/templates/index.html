@@ -14,13 +14,16 @@
     </head>
     <body>
         <div class="split left">
-            <div class="dz_container rounded">
+            <div id="dz_container" class="dz_container rounded">
                 <div class="hidden">
                     <input type="file" id=songUpload>
                 </div>
+                <div id="loading_graphic" class="hidden"></div>
                 <div id="dz" class="dropzone rounded"></div>
                 <!-- <img src="../static/images/audio_upload.png" alt=""> -->
-                <img src="{{ url_for('static', filename='images/audio_upload.png') }}" alt="">
+                <div id="drop_icon">
+                    <img src="{{ url_for('static', filename='images/audio_upload.png') }}" alt="">
+                </div>
             </div>
         </div>
         <div class="split right">
@@ -50,5 +53,7 @@
         <script src="{{url_for('static', filename='js/canvasjs.min.js')}}"></script>
         <script src="{{url_for('static', filename='js/app.js')}}"></script>
         <script src="{{url_for('static', filename='js/toast.min.js')}}"></script>
+        <script src="{{url_for('static', filename='js/p5.js')}}"></script>
+        <script src="{{url_for('static', filename='js/sketch.js')}}"></script>
     </body>
 </html>

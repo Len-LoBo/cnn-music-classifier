@@ -32,6 +32,12 @@ let dz_container = document.querySelector('.dz_container');
 let dropzone = document.getElementById('dz');
 //file selector
 let fileSelector = document.getElementById('songUpload');
+//dropbox icon
+let drop_icon = document.getElementById('drop_icon');
+//console.log(drop_icon.id)
+//loading graphic animation
+let loading_graphic = document.getElementById('loading_graphic');
+
 
 // adding dropzone event listeners
 dropzone.addEventListener("click", click, false);
@@ -116,6 +122,8 @@ async function drop(e) {
     e.preventDefault();
     //sets background back to correct color
     dz_container.style.backgroundColor = "#1F2833";
+    drop_icon.classList.add('hidden');
+    loading_graphic.classList.remove('hidden')
 
     //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
@@ -138,13 +146,20 @@ async function drop(e) {
     
             // store prediction (genre with highest confidence)
             let prediction = genre_labels.get(maxIndex);
+
+            drop_icon.classList.remove('hidden');
+            loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
             displayChart(confidences, prediction)
+
         } catch (error) {
             console.log(error)
+            drop_icon.classList.remove('hidden');
+            loading_graphic.classList.add('hidden');
             showToast("Bad Response from Server")
         }
+
 
 
     // if wav file too big
