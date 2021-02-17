@@ -78,6 +78,8 @@ function click(e) {
 
 // if file selected in file browser
 async function handleFiles() {
+    drop_icon.classList.add('hidden');
+    loading_graphic.classList.remove('hidden')
     const fileList = this.files;
     const file = fileList[0];
 
@@ -92,28 +94,39 @@ async function handleFiles() {
          const formData = new FormData();
          formData.append('audioFile', file);
 
-         var confidences = await fetchPrediction(formData);
-         var maxIndex = getMaxIndex(confidences)
-  
-         // store prediction (genre with highest confidence)
-         let prediction = genre_labels.get(maxIndex);
-         
-         // configures and renders the confidence chart on the page
-         displayChart(confidences, prediction)
- 
- 
-     // if wav file too big
-     } else if (isWav) {
-         dz_container.style.backgroundColor = "#1F2833";
-         iqwerty.toast.toast("File too large");
-         console.log("File too Large");
-     // if not a wav file (or both not wav and too big)
-     } else {
-         dz_container.style.backgroundColor = "#1F2833";
-         iqwerty.toast.toast("Invalid File Type");
-         console.log("Invalid File Type.");
-     }
+         try {
+            var confidences = await fetchPrediction(formData);
+            var maxIndex = getMaxIndex(confidences)
     
+            // store prediction (genre with highest confidence)
+            let prediction = genre_labels.get(maxIndex);
+
+            drop_icon.classList.remove('hidden');
+            loading_graphic.classList.add('hidden');
+            
+            // configures and renders the confidence chart on the page
+            displayChart(confidences, prediction)
+
+        } catch (error) {
+            console.log(error)
+            drop_icon.classList.remove('hidden');
+            loading_graphic.classList.add('hidden');
+            showToast("Bad Response from Server")
+        }
+
+
+
+    // if wav file too big
+    } else if (isWav) {
+        dz_container.style.backgroundColor = "#1F2833";
+        showToast(`File size must be less than ${FILE_SIZE}`);
+        //console.log(`File size must be less than ${FILE_SIZE}`)
+    // if not a wav file (or both not wav and too big)
+    } else {
+        dz_container.style.backgroundColor = "#1F2833";
+        showToast("Invalid File Type.  WAV or MP3 required.");
+        //console.log("Invalid File Type.  WAV or MP3 required.")
+    }
 }
 
 // if file dropped in dropzone
