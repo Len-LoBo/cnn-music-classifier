@@ -83,12 +83,15 @@ body {
     border-radius: 25px;
 }
 
-img {
+#drop_icon {
     position: absolute;
     filter: grayscale(100%);
+    z-index: 1;
+}
+
+img {
     width: 150px;
     height: 150px;
-    z-index: 1;
 }
 
 .text_panel {
@@ -110,4 +113,9 @@ b {
 
 .hidden {
     display: none;
+}
+
+#loading_graphic {
+    position: absolute;
+    z-index: 6;
 }
