@@ -1,3 +1,4 @@
+//maximum allowed file size
 FILE_SIZE = 50
 
 
@@ -10,7 +11,7 @@ window.addEventListener("drop",function(e){
     e.preventDefault();
   },false);
 
-    // for mapping confidence index to genre label
+// for mapping confidence index to genre label
 let genre_labels = new Map([
     [0, "Jazz"],
     [1, "Reggae"],
@@ -24,20 +25,16 @@ let genre_labels = new Map([
     [9, "Pop"]
 ]);
 
-// drag and drop
-
-// dz_container is for styling
+// dz_container is for styling/positioning dropzone elements
 let dz_container = document.querySelector('.dz_container');
-// dropzone has for event listener
+// dropzone for drop event listener
 let dropzone = document.getElementById('dz');
 //file selector
 let fileSelector = document.getElementById('songUpload');
 //dropbox icon
 let drop_icon = document.getElementById('drop_icon');
-//console.log(drop_icon.id)
 //loading graphic animation
 let loading_graphic = document.getElementById('loading_graphic');
-
 
 // adding dropzone event listeners
 dropzone.addEventListener("click", click, false);
@@ -71,15 +68,18 @@ function dragleave(e) {
 }
 
 
-// sends click of dropzone to file input
+// sends click of dropzone to file browser
 function click(e) {
     fileSelector.click();   
 }
 
-// if file selected in file browser
+// if file selected in file browser, handles upload
 async function handleFiles() {
+    //toggles icon and loading animation
     drop_icon.classList.add('hidden');
     loading_graphic.classList.remove('hidden')
+
+    //pulls file from file list
     const fileList = this.files;
     const file = fileList[0];
 
@@ -95,22 +95,28 @@ async function handleFiles() {
          formData.append('audioFile', file);
 
          try {
+            //get confidences from server through fetch
             var confidences = await fetchPrediction(formData);
+            //gets index of maximum confidence
             var maxIndex = getMaxIndex(confidences)
     
             // store prediction (genre with highest confidence)
             let prediction = genre_labels.get(maxIndex);
 
+            //toggle icon and loading animation again
             drop_icon.classList.remove('hidden');
             loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
             displayChart(confidences, prediction)
-
+        
+        //error on fetch
         } catch (error) {
             console.log(error)
+            //toggle icon and animation
             drop_icon.classList.remove('hidden');
             loading_graphic.classList.add('hidden');
+            //display toast at bottom for user
             showToast("Bad Response from Server")
         }
 
@@ -135,6 +141,7 @@ async function drop(e) {
     e.preventDefault();
     //sets background back to correct color
     dz_container.style.backgroundColor = "#1F2833";
+    //toggle icon and loading animation
     drop_icon.classList.add('hidden');
     loading_graphic.classList.remove('hidden')
 
@@ -154,22 +161,28 @@ async function drop(e) {
         const formData = new FormData();
         formData.append('audioFile', file);
         try {
+            //uploads file via fetch to get confidences
             var confidences = await fetchPrediction(formData);
+            //gets index of max confidence
             var maxIndex = getMaxIndex(confidences)
     
             // store prediction (genre with highest confidence)
             let prediction = genre_labels.get(maxIndex);
 
+            //toggle icon and loading animation
             drop_icon.classList.remove('hidden');
             loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
             displayChart(confidences, prediction)
 
+        //handles fetch error
         } catch (error) {
             console.log(error)
+            //toggle icon and animation
             drop_icon.classList.remove('hidden');
             loading_graphic.classList.add('hidden');
+            //display toast to user
             showToast("Bad Response from Server")
         }
 
@@ -195,11 +208,11 @@ async function fetchPrediction(formData) {
         method: 'POST',
         body: formData
     })
-
+    //catches errors not thrown by fetch
     if (res.status >= 400 && res.status < 600) {
         throw new Error("Bad response from Server")
     }
-
+    //get json from response (confidences)
     const json = await res.json();
     
     // extract first item in data object regardless of key name
