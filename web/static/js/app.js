@@ -48,11 +48,13 @@ dropzone.addEventListener("dragleave", dragleave, false);
 dropzone.addEventListener("drop", drop, false);
 fileSelector.addEventListener("change", handleFiles, false);
 
+// clicking refresh button destroys chart and hides button
 refresh_button.onclick = () => {
     chart.destroy();
     refresh_button.classList.add('hidden');
 
 }
+
 // when file dragged into dropzone
 function dragenter(e) {
     e.stopPropagation()
@@ -257,20 +259,27 @@ function getMaxIndex(array) {
 //configures and renders ChartJS chart
 function displayChart(confidences, prediction, maxIndex) {
 
+    //loops through confidence array converting to percentages
+    confidences.forEach(function(element, index) {
+        this[index] = parseFloat((element*100).toFixed(2));
+    }, confidences);
+
     chart = new CanvasJS.Chart("dz", {
         animationEnabled: true,
         theme: "dark1", // "light1", "light2", "dark1", "dark2"
         backgroundColor: "#1F2833",
         title:{
-            text: `${prediction} ${(confidences[maxIndex]*100).toFixed(2)}%`,
+            text: `${prediction} ${confidences[maxIndex]}%`,
             fontFamily: "Rubik",
             fontColor: "#66FCF1"
         },
         axisY: {
-            title: "Confidence",
+            title: "Confidence (%)",
             fontFamily: "Rubik",
             fontColor: "#C5C6C7",
-            minimum: 0
+            minimum: 0,
+            maximum: 100,
+            steps: 10
         },
         data: [{        
             type: "column",
