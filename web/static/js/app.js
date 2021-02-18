@@ -25,6 +25,8 @@ let genre_labels = new Map([
     [9, "Pop"]
 ]);
 
+//variable to hold chart
+let chart;
 // dz_container is for styling/positioning dropzone elements
 let dz_container = document.querySelector('.dz_container');
 // dropzone for drop event listener
@@ -35,6 +37,8 @@ let fileSelector = document.getElementById('songUpload');
 let drop_icon = document.getElementById('drop_icon');
 //loading graphic animation
 let loading_graphic = document.getElementById('loading_graphic');
+//refresh button
+let refresh_button = document.getElementById('refresh_button')
 
 // adding dropzone event listeners
 dropzone.addEventListener("click", click, false);
@@ -44,7 +48,11 @@ dropzone.addEventListener("dragleave", dragleave, false);
 dropzone.addEventListener("drop", drop, false);
 fileSelector.addEventListener("change", handleFiles, false);
 
+refresh_button.onclick = () => {
+    chart.destroy();
+    refresh_button.classList.add('hidden');
 
+}
 // when file dragged into dropzone
 function dragenter(e) {
     e.stopPropagation()
@@ -110,6 +118,9 @@ async function handleFiles() {
             // configures and renders the confidence chart on the page
             displayChart(confidences, prediction, maxIndex)
         
+            //show refresh button
+            refresh_button.classList.remove('hidden');
+
         //error on fetch
         } catch (error) {
             console.log(error)
@@ -175,6 +186,9 @@ async function drop(e) {
             
             // configures and renders the confidence chart on the page
             displayChart(confidences, prediction, maxIndex)
+
+            //show refresh button
+            refresh_button.classList.remove('hidden');
 
         //handles fetch error
         } catch (error) {
@@ -243,7 +257,7 @@ function getMaxIndex(array) {
 //configures and renders ChartJS chart
 function displayChart(confidences, prediction, maxIndex) {
 
-    var chart = new CanvasJS.Chart("dz", {
+    chart = new CanvasJS.Chart("dz", {
         animationEnabled: true,
         theme: "dark1", // "light1", "light2", "dark1", "dark2"
         backgroundColor: "#1F2833",
