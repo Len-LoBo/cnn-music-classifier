@@ -85,9 +85,6 @@ function click(e) {
 
 // if file selected in file browser, handles upload
 async function handleFiles() {
-    //toggles icon and loading animation
-    drop_icon.classList.add('hidden');
-    loading_graphic.classList.remove('hidden')
 
     //pulls file from file list
     const fileList = this.files;
@@ -99,12 +96,16 @@ async function handleFiles() {
      
      // if size and type checks pass
      if (isUnder10Mb && isWav) {
- 
-         // wrap file in formData object for fetch body
-         const formData = new FormData();
-         formData.append('audioFile', file);
 
-         try {
+        //toggle icon and loading animation
+        drop_icon.classList.add('hidden');
+        loading_graphic.classList.remove('hidden')
+    
+        // wrap file in formData object for fetch body
+        const formData = new FormData();
+        formData.append('audioFile', file);
+
+        try {
             //get confidences from server through fetch
             var confidences = await fetchPrediction(formData);
             //gets index of maximum confidence
@@ -154,9 +155,6 @@ async function drop(e) {
     e.preventDefault();
     //sets background back to correct color
     dz_container.style.backgroundColor = "#1F2833";
-    //toggle icon and loading animation
-    drop_icon.classList.add('hidden');
-    loading_graphic.classList.remove('hidden')
 
     //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
@@ -169,6 +167,10 @@ async function drop(e) {
     
     // if size and type checks pass
     if (isUnder10Mb && isWav) {
+
+        //toggle icon and loading animation
+        drop_icon.classList.add('hidden');
+        loading_graphic.classList.remove('hidden')
 
         // wrap file in formData object for fetch body
         const formData = new FormData();
