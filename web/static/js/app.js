@@ -25,6 +25,8 @@ let genre_labels = new Map([
     [9, "Pop"]
 ]);
 
+//variable to hold chart
+let chart;
 // dz_container is for styling/positioning dropzone elements
 let dz_container = document.querySelector('.dz_container');
 // dropzone for drop event listener
@@ -35,6 +37,8 @@ let fileSelector = document.getElementById('songUpload');
 let drop_icon = document.getElementById('drop_icon');
 //loading graphic animation
 let loading_graphic = document.getElementById('loading_graphic');
+//refresh button
+let refresh_button = document.getElementById('refresh_button')
 
 // adding dropzone event listeners
 dropzone.addEventListener("click", click, false);
@@ -44,6 +48,12 @@ dropzone.addEventListener("dragleave", dragleave, false);
 dropzone.addEventListener("drop", drop, false);
 fileSelector.addEventListener("change", handleFiles, false);
 
+// clicking refresh button destroys chart and hides button
+refresh_button.onclick = () => {
+    chart.destroy();
+    refresh_button.classList.add('hidden');
+
+}
 
 // when file dragged into dropzone
 function dragenter(e) {
@@ -75,9 +85,6 @@ function click(e) {
 
 // if file selected in file browser, handles upload
 async function handleFiles() {
-    //toggles icon and loading animation
-    drop_icon.classList.add('hidden');
-    loading_graphic.classList.remove('hidden')
 
     //pulls file from file list
     const fileList = this.files;
@@ -89,12 +96,16 @@ async function handleFiles() {
      
      // if size and type checks pass
      if (isUnder10Mb && isWav) {
- 
-         // wrap file in formData object for fetch body
-         const formData = new FormData();
-         formData.append('audioFile', file);
 
-         try {
+        //toggle icon and loading animation
+        drop_icon.classList.add('hidden');
+        loading_graphic.classList.remove('hidden')
+    
+        // wrap file in formData object for fetch body
+        const formData = new FormData();
+        formData.append('audioFile', file);
+
+        try {
             //get confidences from server through fetch
             var confidences = await fetchPrediction(formData);
             //gets index of maximum confidence
@@ -108,8 +119,11 @@ async function handleFiles() {
             loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
-            displayChart(confidences, prediction)
+            displayChart(confidences, prediction, maxIndex)
         
+            //show refresh button
+            refresh_button.classList.remove('hidden');
+
         //error on fetch
         } catch (error) {
             console.log(error)
@@ -141,9 +155,6 @@ async function drop(e) {
     e.preventDefault();
     //sets background back to correct color
     dz_container.style.backgroundColor = "#1F2833";
-    //toggle icon and loading animation
-    drop_icon.classList.add('hidden');
-    loading_graphic.classList.remove('hidden')
 
     //gets file and appends it to FormData() object
     const dt = e.dataTransfer;
@@ -156,6 +167,10 @@ async function drop(e) {
     
     // if size and type checks pass
     if (isUnder10Mb && isWav) {
+
+        //toggle icon and loading animation
+        drop_icon.classList.add('hidden');
+        loading_graphic.classList.remove('hidden')
 
         // wrap file in formData object for fetch body
         const formData = new FormData();
@@ -174,7 +189,10 @@ async function drop(e) {
             loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
-            displayChart(confidences, prediction)
+            displayChart(confidences, prediction, maxIndex)
+
+            //show refresh button
+            refresh_button.classList.remove('hidden');
 
         //handles fetch error
         } catch (error) {
@@ -241,22 +259,29 @@ function getMaxIndex(array) {
 
 
 //configures and renders ChartJS chart
-function displayChart(confidences, prediction) {
+function displayChart(confidences, prediction, maxIndex) {
 
-    var chart = new CanvasJS.Chart("dz", {
+    //loops through confidence array converting to percentages
+    confidences.forEach(function(element, index) {
+        this[index] = parseFloat((element*100).toFixed(2));
+    }, confidences);
+
+    chart = new CanvasJS.Chart("dz", {
         animationEnabled: true,
         theme: "dark1", // "light1", "light2", "dark1", "dark2"
         backgroundColor: "#1F2833",
         title:{
-            text: `Prediction: ${prediction}`,
+            text: `${prediction} ${confidences[maxIndex]}%`,
             fontFamily: "Rubik",
             fontColor: "#66FCF1"
         },
         axisY: {
-            title: "Confidence",
+            title: "Confidence (%)",
             fontFamily: "Rubik",
             fontColor: "#C5C6C7",
-            minimum: 0
+            minimum: 0,
+            maximum: 100,
+            steps: 10
         },
         data: [{        
             type: "column",

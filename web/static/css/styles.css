@@ -1,10 +1,10 @@
-/*Color Scheme
-#0B0C10 - almost black
-#1F2833 - brighter black
-#C5C6C7 - light grey
-#66FCF1 - teal accent
-#45A29E - darker teal
-*/
+:root {
+    --black: #0B0C10;
+    --dark_grey: #1F2833;
+    --light_grey: #C5C6C7;
+    --teal_accent: #66FCF1;
+    --teal_dark: #45A29E;
+}
 
 body {
     font-family: "Rubik";
@@ -48,12 +48,12 @@ body {
     flex-direction: column;
     left: 0;
     background-image: url("../images/crowd.jpg");
-    background-color:#0B0C10;
+    background-color:var(--black);
 }
 
 .right {
     right: 0;
-    background-color: #1F2833;
+    background-color: var(--dark_grey);
     box-shadow: 0px 0px 10px 2px black;
     
 }
@@ -68,7 +68,7 @@ body {
     margin: 20px 40px;
     height: 60%;
     width: 75%;
-    background-color: #1F2833;
+    background-color: var(--dark_grey);
     opacity: 1;
     box-shadow: 0px 0px 10px 1px rgb(0, 0, 0);
 }
@@ -99,12 +99,12 @@ img {
 }
 
 h3 {
-    color: #66FCF1;
+    color: var(--teal_accent);
     font-size: 2rem;
 }
 
 p {
-    color: #C5C6C7;
+    color: var(--light_grey);
 }
 
 b {
@@ -118,4 +118,19 @@ b {
 #loading_graphic {
     position: absolute;
     z-index: 6;
+}
+
+#refresh_button {
+    margin-top: 20px;
+    background-color: var(--dark_grey);
+    border: 2px solid var(--teal_accent);
+    color: var(--teal_accent);
+    font-size: 1.2rem;
+    padding: 10px 30px;
+    border-radius: 12px;
+}
+
+#refresh_button:hover {
+    background-color: var(--teal_accent);
+    color: var(--dark_grey);
 }
