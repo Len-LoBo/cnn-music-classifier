@@ -108,7 +108,7 @@ async function handleFiles() {
             loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
-            displayChart(confidences, prediction)
+            displayChart(confidences, prediction, maxIndex)
         
         //error on fetch
         } catch (error) {
@@ -174,7 +174,7 @@ async function drop(e) {
             loading_graphic.classList.add('hidden');
             
             // configures and renders the confidence chart on the page
-            displayChart(confidences, prediction)
+            displayChart(confidences, prediction, maxIndex)
 
         //handles fetch error
         } catch (error) {
@@ -241,14 +241,14 @@ function getMaxIndex(array) {
 
 
 //configures and renders ChartJS chart
-function displayChart(confidences, prediction) {
+function displayChart(confidences, prediction, maxIndex) {
 
     var chart = new CanvasJS.Chart("dz", {
         animationEnabled: true,
         theme: "dark1", // "light1", "light2", "dark1", "dark2"
         backgroundColor: "#1F2833",
         title:{
-            text: `Prediction: ${prediction}`,
+            text: `${prediction} ${(confidences[maxIndex]*100).toFixed(2)}%`,
             fontFamily: "Rubik",
             fontColor: "#66FCF1"
         },
