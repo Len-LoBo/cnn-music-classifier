@@ -290,7 +290,7 @@ function isValidSize(file) {
 
 //checks if file is wav file
 function isValidType(file) {
-    return file.type == 'audio/wav'
+    return file.type == 'audio/wav' || file.type == 'audio/mpeg';
 }
 
 
