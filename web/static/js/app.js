@@ -276,7 +276,7 @@ function displayChart(confidences, prediction, maxIndex) {
             fontColor: "#66FCF1"
         },
         axisY: {
-            title: "Confidence (%)",
+            title: "Avg. Confidence (%)",
             fontFamily: "Rubik",
             fontColor: "#C5C6C7",
             minimum: 0,

@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 app = Flask(__name__)
-our_model = keras.models.load_model('models/cnn_model_80acc.h5')
+model = keras.models.load_model('models/cnn_model_80acc.h5')
 
 
 @app.route('/')
@@ -18,24 +18,24 @@ def index():
 
 @app.route('/upload', methods=["POST"])
 def upload():
-
-    print("request.files")
+    # extract filestorage object from request
     data = request.files['audioFile']
     
-    print("Calling create_mfcc")
+    # extract mfccs
     input = create_mfcc(data)
+    # add additional dimension for color
     input = input[..., np.newaxis]
 
-    print("Calling predictions")
-    prediction = predict(our_model, input)
+    # get prediction/confidences from model
+    confidences = model.predict(input)
 
-    averaged = getAverageConfidences(prediction)
+    # average the confidence for all segments
+    averaged = np.mean(confidences, axis=0)
     averaged = averaged.tolist()
-    print(averaged)
 
     return jsonify(confidences=averaged)
 
-
+# loads song and extracts mfcc data.  Reshapes data to correct size for model
 def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=130):
     mfcc_list = []
 
@@ -52,30 +52,21 @@ def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=
     # transpose the mfcc data
     mfcc = mfcc.T
 
+    # get number of rows
     num_rows = mfcc.shape[0]
 
-    full_rows = num_rows // seg_size
-    maximum_rows = full_rows * seg_size
+    # calculate the maximum number of full segments we can slice
+    max_segments = num_rows // seg_size
+    maximum_rows = max_segments * seg_size
+
+    # delete rows that dont add up to full segment
     mfcc = np.delete(mfcc, slice(maximum_rows-1, -1), 0)
+
+    # reshape to 3-D array expected by model
     mfcc = np.reshape(mfcc, (-1, seg_size, n_mfcc))
+
     return mfcc
 
-
-# returns prediction confidences based on model and input
-def predict(model, X):
-    # add a dimension to input data for sample - model.predict() expects a 4d array in this case
-
-    # perform prediction
-    print("Predicting")
-    confidences = model.predict(X)
-
-    print("Returning model")
-    return confidences
-
-# takes an average of columns in 2d array and returns in 1D array
-def getAverageConfidences(confidences):
-    avg_confidences = np.mean(confidences, axis=0)
-    return avg_confidences
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
