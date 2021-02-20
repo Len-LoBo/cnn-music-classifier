@@ -23,55 +23,58 @@ def upload():
     data = request.files['audioFile']
     
     print("Calling create_mfcc")
-    input_file = create_mfcc(data)
+    input = create_mfcc(data)
+    input = input[..., np.newaxis]
 
-    input_file = input_file[..., np.newaxis]
-    
     print("Calling predictions")
-    prediction = predict(our_model, input_file)
-    return jsonify(predictions=prediction)
+    prediction = predict(our_model, input)
+
+    averaged = getAverageConfidences(prediction)
+    averaged = averaged.tolist()
+    print(averaged)
+
+    return jsonify(confidences=averaged)
 
 
-def create_mfcc(data, num_segments=6, hop_length=512, n_fft=2048, sample_rate=22050, num_mfcc=13):
-    # arrays to hold calculated mfccs and mapped number
-    mfccs = []
-    labels = []
+def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=216):
+    mfcc_list = []
 
-    samples_per_track = sample_rate * 30  # track duration = 30s
-    samples_per_segment = int(samples_per_track / num_segments)
-    num_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
+    # process audio files
+    signal, sr = librosa.load(data, sr=sr)
 
-    signal, sr = librosa.core.load(data, sr=sample_rate)
+    # extract mfcc feature data
+    mfcc = librosa.feature.mfcc(signal,
+                                sr=sr,
+                                n_fft=n_fft,
+                                n_mfcc=n_mfcc,
+                                hop_length=hop_length)
 
-    # extract MFCCs
-    for s in range(num_segments):
-        # calculate start and finish sample for current segment
-        start = samples_per_segment * s
-        finish = start + samples_per_segment
-        # extract mfcc
-        mfcc = librosa.feature.mfcc(signal[start:finish], sr=sample_rate, n_mfcc=num_mfcc, n_fft=n_fft,
-                                    hop_length=hop_length)
-        # transpose to correct dimensions
-        mfcc = mfcc.T
-        if len(mfcc) == num_mfcc_vectors_per_segment:
-            return mfcc
+    # transpose the mfcc data
+    mfcc = mfcc.T
+
+    num_rows = mfcc.shape[0]
+
+    full_rows = num_rows // seg_size
+    maximum_rows = full_rows * seg_size
+    mfcc = np.delete(mfcc, slice(maximum_rows-1, -1), 0)
+    mfcc = np.reshape(mfcc, (-1, seg_size, n_mfcc))
+    return mfcc
+
 
 
 def predict(model, X):
     # add a dimension to input data for sample - model.predict() expects a 4d array in this case
 
-    print("Adding new axis")
-    X = X[np.newaxis, ...]  # array shape (1 <- number of samples, 130, 13, 1)
-
     # perform prediction
     print("Predicting")
-    print(X.shape)
-    prediction = model.predict(X)
-
-    prediction = prediction.tolist()
+    confidences = model.predict(X)
 
     print("Returning model")
-    return prediction
+    return confidences
+
+def getAverageConfidences(confidences):
+    avg_confidences = np.mean(confidences, axis=0)
+    return avg_confidences
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
