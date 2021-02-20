@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 app = Flask(__name__)
-our_model = keras.models.load_model('models/cnn_model_6_segs_per_track.h5')
+our_model = keras.models.load_model('models/cnn_model_80acc.h5')
 
 
 @app.route('/')
@@ -36,7 +36,7 @@ def upload():
     return jsonify(confidences=averaged)
 
 
-def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=216):
+def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=130):
     mfcc_list = []
 
     # process audio files
@@ -61,7 +61,7 @@ def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=
     return mfcc
 
 
-
+# returns prediction confidences based on model and input
 def predict(model, X):
     # add a dimension to input data for sample - model.predict() expects a 4d array in this case
 
@@ -72,6 +72,7 @@ def predict(model, X):
     print("Returning model")
     return confidences
 
+# takes an average of columns in 2d array and returns in 1D array
 def getAverageConfidences(confidences):
     avg_confidences = np.mean(confidences, axis=0)
     return avg_confidences
