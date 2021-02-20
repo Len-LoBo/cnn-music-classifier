@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 app = Flask(__name__)
-model = keras.models.load_model('models/cnn_model_80acc.h5')
+model = keras.models.load_model('models/cnn_model_80acc_130.h5')
 
 
 @app.route('/')
@@ -36,7 +36,7 @@ def upload():
     return jsonify(confidences=averaged)
 
 # loads song and extracts mfcc data.  Reshapes data to correct size for model
-def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=130):
+def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, model_seg_size=130):
     mfcc_list = []
 
     # process audio files
@@ -56,14 +56,14 @@ def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, seg_size=
     num_rows = mfcc.shape[0]
 
     # calculate the maximum number of full segments we can slice
-    max_segments = num_rows // seg_size
-    maximum_rows = max_segments * seg_size
+    max_segments = num_rows // model_seg_size
+    maximum_rows = max_segments * model_seg_size
 
     # delete rows that dont add up to full segment
     mfcc = np.delete(mfcc, slice(maximum_rows-1, -1), 0)
 
     # reshape to 3-D array expected by model
-    mfcc = np.reshape(mfcc, (-1, seg_size, n_mfcc))
+    mfcc = np.reshape(mfcc, (-1, model_seg_size, n_mfcc))
 
     return mfcc
 
