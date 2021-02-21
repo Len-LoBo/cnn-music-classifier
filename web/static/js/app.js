@@ -232,12 +232,12 @@ async function fetchPrediction(formData) {
     }
     //get json from response (confidences)
     const json = await res.json();
-    
+
     // extract first item in data object regardless of key name
-    let confidence_key = `${Object.keys(json)[0]}`;
+    let confidence_key = `${Object.keys(json)}`;
 
     // store confidences array
-    let confidences = json[confidence_key][0];
+    let confidences = json[confidence_key];
 
     return confidences;
 }
@@ -276,7 +276,7 @@ function displayChart(confidences, prediction, maxIndex) {
             fontColor: "#66FCF1"
         },
         axisY: {
-            title: "Confidence (%)",
+            title: "Avg. Confidence (%)",
             fontFamily: "Rubik",
             fontColor: "#C5C6C7",
             minimum: 0,

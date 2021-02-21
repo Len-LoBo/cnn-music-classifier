@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 app = Flask(__name__)
-our_model = keras.models.load_model('models/cnn_model_6_segs_per_track.h5')
+model = keras.models.load_model('models/cnn_model_80acc_130.h5')
 
 
 @app.route('/')
@@ -18,60 +18,55 @@ def index():
 
 @app.route('/upload', methods=["POST"])
 def upload():
-
-    print("request.files")
+    # extract filestorage object from request
     data = request.files['audioFile']
     
-    print("Calling create_mfcc")
-    input_file = create_mfcc(data)
+    # extract mfccs
+    input = create_mfcc(data)
+    # add additional dimension for color
+    input = input[..., np.newaxis]
 
-    input_file = input_file[..., np.newaxis]
-    
-    print("Calling predictions")
-    prediction = predict(our_model, input_file)
-    return jsonify(predictions=prediction)
+    # get prediction/confidences from model
+    confidences = model.predict(input)
 
+    # average the confidence for all segments
+    averaged = np.mean(confidences, axis=0)
+    averaged = averaged.tolist()
 
-def create_mfcc(data, num_segments=6, hop_length=512, n_fft=2048, sample_rate=22050, num_mfcc=13):
-    # arrays to hold calculated mfccs and mapped number
-    mfccs = []
-    labels = []
+    return jsonify(confidences=averaged)
 
-    samples_per_track = sample_rate * 30  # track duration = 30s
-    samples_per_segment = int(samples_per_track / num_segments)
-    num_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
+# loads song and extracts mfcc data.  Reshapes data to correct size for model
+def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, model_seg_size=130):
+    mfcc_list = []
 
-    signal, sr = librosa.core.load(data, sr=sample_rate)
+    # process audio files
+    signal, sr = librosa.load(data, sr=sr)
 
-    # extract MFCCs
-    for s in range(num_segments):
-        # calculate start and finish sample for current segment
-        start = samples_per_segment * s
-        finish = start + samples_per_segment
-        # extract mfcc
-        mfcc = librosa.feature.mfcc(signal[start:finish], sr=sample_rate, n_mfcc=num_mfcc, n_fft=n_fft,
-                                    hop_length=hop_length)
-        # transpose to correct dimensions
-        mfcc = mfcc.T
-        if len(mfcc) == num_mfcc_vectors_per_segment:
-            return mfcc
+    # extract mfcc feature data
+    mfcc = librosa.feature.mfcc(signal,
+                                sr=sr,
+                                n_fft=n_fft,
+                                n_mfcc=n_mfcc,
+                                hop_length=hop_length)
 
+    # transpose the mfcc data
+    mfcc = mfcc.T
 
-def predict(model, X):
-    # add a dimension to input data for sample - model.predict() expects a 4d array in this case
+    # get number of rows
+    num_rows = mfcc.shape[0]
 
-    print("Adding new axis")
-    X = X[np.newaxis, ...]  # array shape (1 <- number of samples, 130, 13, 1)
+    # calculate the maximum number of full segments we can slice
+    max_segments = num_rows // model_seg_size
+    maximum_rows = max_segments * model_seg_size
 
-    # perform prediction
-    print("Predicting")
-    print(X.shape)
-    prediction = model.predict(X)
+    # delete rows that dont add up to full segment
+    mfcc = np.delete(mfcc, slice(maximum_rows-1, -1), 0)
 
-    prediction = prediction.tolist()
+    # reshape to 3-D array expected by model
+    mfcc = np.reshape(mfcc, (-1, model_seg_size, n_mfcc))
 
-    print("Returning model")
-    return prediction
+    return mfcc
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
