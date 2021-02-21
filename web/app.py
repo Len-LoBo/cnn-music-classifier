@@ -8,6 +8,7 @@ import numpy as np
 
 app = Flask(__name__)
 
+# Extracing the number of segs from the model name
 model_name = 'models/cnn_model_80acc_130.h5'
 models_seg_size = int(model_name.split('_')[-1].split('.')[0])
 model = keras.models.load_model(model_name)
@@ -41,8 +42,6 @@ def upload():
 # loads song and extracts mfcc data.  Reshapes data to correct size for model
 def create_mfcc(data, hop_length=512, n_fft=2048, sr=22050, n_mfcc=13, model_seg_size=models_seg_size):
     
-    type(models_seg_size)
-
     mfcc_list = []
 
     # process audio files
