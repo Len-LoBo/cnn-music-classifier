@@ -1,5 +1,5 @@
 //maximum allowed file size
-FILE_SIZE = 50
+FILE_SIZE = 10
 
 
 // preventing the browser window from opening dropped files
