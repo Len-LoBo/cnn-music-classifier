@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
+        <title>Music Genre Classifier</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- <link rel="stylesheet" href="../static/css/styles.css"> -->
@@ -28,26 +28,21 @@
             <button id="refresh_button" class="hidden" type="button">New Song</button>
         </div>
         <div class="split right">
+            <h3>MUSIC GENRE <br> CLASSIFIER</h3>
             <div class="text_panel">
-                <h3>MUSIC GENRE CLASSIFIER</h3>
-                <p><b>Lorem Ipsum</b> is simply dummy text of the printing and typesetting industry. 
-                   Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                   when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                <p id="intro">This site uses a <span>Convolutional Neural Network (CNN)</span> to predict the genre of any song
+                    it hears.
                 </p>
-                <br>
-                <br>
-                <p><b>Lorem Ipsum</b> is simply dummy text of the printing and typesetting industry. 
-                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                <p id="instructions"><b>Instructions:</b> Using the box to the left, <span>Drag and Drop</span> or <span>Click</span>
+                    to upload a <span>.WAV</span> audio file.  The file will be uploaded to our server and run through 
+                    the <span>CNN model</span>. When the model is done making its prediction, you will see a graph of the model's 
+                    average confidence across 10 musical genres.  The top confidence will be the model's best prediction for the 
+                    songs genre!
                 </p>
-                <br>
-                <br>
-                <br>
-                <p><b>Lorem Ipsum</b> is simply dummy text of the printing and typesetting industry. 
-                Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
-                when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
-
+                <p id="tips"><b>Tips:</b> Try to keep the size of your uploaded <span>.WAV</span> file beneath <span>10 MB</span>.  
+                    You can use a free software like Audacity to trim your song down to size!</p>
             </div>
+            <div id="footer">&copy 2021 Leonard LoBiondo, Kurt Kuhn, Jessica Lane</div>
         </div>
         <!-- <script src="../static/js/canvasjs.min.js"></script> -->
         <!-- <script src="../static/js/app.js"></script> -->
