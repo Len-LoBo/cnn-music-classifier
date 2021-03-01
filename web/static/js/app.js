@@ -309,7 +309,7 @@ function displayChart(confidences, prediction, maxIndex) {
 function isValidSize(file) {
     const fsize = file.size;
     const mbsize = Math.round((fsize/1048576));
-    return mbsize <= FILESIZE;
+    return mbsize <= FILE_SIZE;
 }
 
 
