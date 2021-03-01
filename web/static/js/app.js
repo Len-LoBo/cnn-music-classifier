@@ -144,7 +144,7 @@ async function handleFiles() {
     // if not a wav file (or both not wav and too big)
     } else {
         dz_container.style.backgroundColor = "#1F2833";
-        showToast("Invalid File Type.  WAV or MP3 required.");
+        showToast("Invalid File Type.  WAV file required.");
         //console.log("Invalid File Type.  WAV or MP3 required.")
     }
 }
@@ -214,7 +214,7 @@ async function drop(e) {
     // if not a wav file (or both not wav and too big)
     } else {
         dz_container.style.backgroundColor = "#1F2833";
-        showToast("Invalid File Type.  WAV or MP3 required.");
+        showToast("Invalid File Type.  WAV file required.");
         //console.log("Invalid File Type.  WAV or MP3 required.")
     }
 }
@@ -309,13 +309,13 @@ function displayChart(confidences, prediction, maxIndex) {
 function isValidSize(file) {
     const fsize = file.size;
     const mbsize = Math.round((fsize/1048576));
-    return mbsize <= 50;
+    return mbsize <= FILESIZE;
 }
 
 
 //checks if file is wav file
 function isValidType(file) {
-    return file.type == 'audio/wav' || file.type == 'audio/mpeg';
+    return file.type == 'audio/wav';
 }
 
 
@@ -324,7 +324,7 @@ function showToast(message) {
     const options = {
         style: {
             main: {
-                background: "black",
+                background: "#1F2833",
                 color: "white",
                 width: "25%",
             },
